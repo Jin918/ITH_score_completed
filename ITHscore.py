@@ -300,8 +300,11 @@ def batch_process(image_path, mask_path, result_path, case_path, label_path, lim
         label_path: Path to label files.
         limit: Optional; limits the number of processed cases.
     """
-    # Get intersected IDs
+    # # Get intersected IDs
+    # intersected_ids = cat_intersection_ids(case_path, label_path)
+    # Get intersected IDs and ensure they are zero-padded strings
     intersected_ids = cat_intersection_ids(case_path, label_path)
+    intersected_ids = [str(id).zfill(3) for id in intersected_ids]  # Zero-pad the IDs
 
     if limit:
         image_path = image_path[:limit]
@@ -356,22 +359,28 @@ def batch_process(image_path, mask_path, result_path, case_path, label_path, lim
         for id, score in ith_scores:
             writer.writerow([id, score])
 
-
-
-# Preprocessing steps
-case_path = 'D:/projects/ITHscore/01_TCGA_cases'
-label_path = 'D:/projects/ITHscore/01_TCGA_labels'
+case_path = 'D:/projects/ITHscore/03_ZDFE_cases'
+label_path = 'D:/projects/ITHscore/03_ZDFE_labels'
 intersected_ids = cat_intersection_ids(case_path, label_path)
 processing_interactions(intersected_ids, label_path, case_path)
-
-# Get image and mask path
 image_path, mask_path = achieve_img_and_mask_path(case_path)
-
-
-# Run batch processing
-result_path = 'D:/projects/ITHscore/01_TCGA_results'
+result_path = 'D:/projects/ITHscore/03_ZDFE_results'
 batch_process(image_path, mask_path, result_path, case_path, label_path, limit=None)
-# batch_process(image_path, mask_path, result_path, limit=5)  # 只处理前5个图像
+
+# # Preprocessing steps
+# case_path = 'D:/projects/ITHscore/01_TCGA_cases'
+# label_path = 'D:/projects/ITHscore/01_TCGA_labels'
+# intersected_ids = cat_intersection_ids(case_path, label_path)
+# processing_interactions(intersected_ids, label_path, case_path)
+#
+# # Get image and mask path
+# image_path, mask_path = achieve_img_and_mask_path(case_path)
+#
+#
+# # Run batch processing
+# result_path = 'D:/projects/ITHscore/01_TCGA_results'
+# batch_process(image_path, mask_path, result_path, case_path, label_path, limit=None)
+# # batch_process(image_path, mask_path, result_path, limit=5)  # 只处理前5个图像
 
 
 

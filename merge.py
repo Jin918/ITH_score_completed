@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 def merge_csv_file(label_path, result_path, file_name):
-    labels_file_path = os.path.join(label_path, '01_TCGA_label_intersection.csv')
+    labels_file_path = os.path.join(label_path, '03_ZDFE_label_intersection.csv')
     ith_score_file_path = os.path.join(result_path, 'ith_scores.csv')
 
     labels_df = pd.read_csv(labels_file_path, dtype={'ID': str})
@@ -22,7 +22,7 @@ def merge_csv_file(label_path, result_path, file_name):
 
     return merge_csv_file
 
-label_path = 'D:/projects/ITHscore/01_TCGA_labels'
-result_path = 'D:/projects/ITHscore/01_TCGA_results'
+label_path = 'D:/projects/ITHscore/03_ZDFE_labels'
+result_path = 'D:/projects/ITHscore/03_ZDFE_results'
 file_name = 'ith_score_merge.csv'
 merge_csv_file(label_path, result_path, file_name)
