@@ -51,6 +51,7 @@ def load_seg(path):
 
     return seg
 
+
 def get_largest_slice(img3d, mask3d):
     """
     Get the slice with largest tumor area
@@ -61,21 +62,106 @@ def get_largest_slice(img3d, mask3d):
         img: Numpy array. The 2D image slice with largest tumor area
         mask: Numpy array. The subset of mask in the same position of sub_img
     """
-    # 计算每个切片中肿瘤区域的面积。mask3d == 1 产生一个布尔数组，其中肿瘤区域为True。
-    # np.sum 对每个切片的肿瘤区域进行计数（沿着第一和第二轴），得到每个切片中肿瘤区域的像素数。
-    area = np.sum(mask3d == 1, axis=(1, 2))
+    # 将掩模二值化，所有非零值都映射为1
+    binary_mask = np.where(mask3d > 0, 1, 0)
 
-    # np.argsort 返回数组排序后的索引。[-1]选择了最大面积的索引。
-    area_index = np.argsort(area)[-1]
+    # 计算每个切片中肿瘤区域的面积
+    area = np.sum(binary_mask, axis=(1, 2))
+    print(f"Tumor areas in each slice: {area}")
 
-    # 使用找到的索引从原始3D图像中提取出具有最大肿瘤面积的切片。
-    img = img3d[area_index, :, :]
+    if np.any(area):  # 确保至少有一个切片包含肿瘤
+        # 获取最大面积的切片索引
+        area_index = np.argmax(area)
+        # 提取最大肿瘤面积的切片
+        img = img3d[area_index, :, :]
+        mask = binary_mask[area_index, :, :]
+        return img, mask
+    else:
+        raise ValueError("No tumor found in any slice of the mask.")
 
-    # 使用相同的索引从肿瘤掩码数组中提取对应的切片。
-    mask = mask3d[area_index, :, :]
 
-    # 返回找到的图像切片及其对应的肿瘤掩码切片。
-    return img, mask
+
+# def get_largest_slice(img3d, mask3d):
+#     """
+#     Get the slice with largest tumor area
+#     Args:
+#         img3d: Numpy array. The whole CT volume (3D)
+#         mask3d: Numpy array. Same size as img3d, binary mask with tumor area set as 1, background as 0
+#     Returns:
+#         img: Numpy array. The 2D image slice with largest tumor area
+#         mask: Numpy array. The subset of mask in the same position of sub_img
+#     """
+#     # 首先检查掩模中是否有非零值
+#     unique_values = np.unique(mask3d)
+#     print(f"Unique values in mask: {unique_values}")  # 这将显示掩模中的所有独特值
+#     if len(unique_values) == 1 and unique_values[0] == 0:
+#         raise ValueError("No tumor found in the mask. All values are zero.")
+#
+#     # 计算每个切片中肿瘤区域的面积
+#     area = np.sum(mask3d == 1, axis=(1, 2))
+#     print(f"Tumor areas in each slice: {area}")
+#
+#     if np.any(area):  # 确保至少有一个切片包含肿瘤
+#         # 获取最大面积的切片索引
+#         area_index = np.argmax(area)
+#         # 提取最大肿瘤面积的切片
+#         img = img3d[area_index, :, :]
+#         mask = mask3d[area_index, :, :]
+#         return img, mask
+#     else:
+#         raise ValueError("No tumor found in any slice of the mask. Check the mask values and thresholding.")
+
+
+# def get_largest_slice(img3d, mask3d):
+#     """
+#     Get the slice with largest tumor area
+#     Args:
+#         img3d: Numpy array. The whole CT volume (3D)
+#         mask3d: Numpy array. Same size as img3d, binary mask with tumor area set as 1, background as 0
+#     Returns:
+#         img: Numpy array. The 2D image slice with largest tumor area
+#         mask: Numpy array. The subset of mask in the same position of sub_img
+#     """
+#     # 计算每个切片中肿瘤区域的面积
+#     area = np.sum(mask3d == 1, axis=(1, 2))
+#     print(f"Tumor areas in each slice: {area}")
+#
+#     if np.any(area):  # 确保至少有一个切片包含肿瘤
+#         # 获取最大面积的切片索引
+#         area_index = np.argmax(area)
+#         # 提取最大肿瘤面积的切片
+#         img = img3d[area_index, :, :]
+#         mask = mask3d[area_index, :, :]
+#         return img, mask
+#     else:
+#         raise ValueError("No tumor found in any slice of the mask.")
+
+# def get_largest_slice(img3d, mask3d):
+#     """
+#     Get the slice with largest tumor area
+#     Args:
+#         img3d: Numpy array. The whole CT volume (3D)
+#         mask3d: Numpy array. Same size as img3d, binary mask with tumor area set as 1, background as 0
+#     Returns:
+#         img: Numpy array. The 2D image slice with largest tumor area
+#         mask: Numpy array. The subset of mask in the same position of sub_img
+#     """
+#     # 计算每个切片中肿瘤区域的面积。mask3d == 1 产生一个布尔数组，其中肿瘤区域为True。
+#     # np.sum 对每个切片的肿瘤区域进行计数（沿着第一和第二轴），得到每个切片中肿瘤区域的像素数。
+#     area = np.sum(mask3d == 1, axis=(1, 2))
+#
+#     # np.argsort 返回数组排序后的索引。[-1]选择了最大面积的索引。
+#     area_index = np.argsort(area)[-1]
+#
+#     # 使用找到的索引从原始3D图像中提取出具有最大肿瘤面积的切片。
+#     img = img3d[area_index, :, :]
+#
+#     # 使用相同的索引从肿瘤掩码数组中提取对应的切片。
+#     mask = mask3d[area_index, :, :]
+#
+#     # 返回找到的图像切片及其对应的肿瘤掩码切片。
+#     return img, mask
+
 
 
 def locate_tumor(img, mask, padding=2):
@@ -300,8 +386,11 @@ def batch_process(image_path, mask_path, result_path, case_path, label_path, lim
         label_path: Path to label files.
         limit: Optional; limits the number of processed cases.
     """
-    # Get intersected IDs
+    # # Get intersected IDs
+    # intersected_ids = cat_intersection_ids(case_path, label_path)
+    # Get intersected IDs and ensure they are zero-padded strings
     intersected_ids = cat_intersection_ids(case_path, label_path)
+    intersected_ids = [str(id).zfill(3) for id in intersected_ids]  # Zero-pad the IDs
 
     if limit:
         image_path = image_path[:limit]
@@ -322,12 +411,25 @@ def batch_process(image_path, mask_path, result_path, case_path, label_path, lim
     for img_path, msk_path, patient_id in tqdm(zip(image_path, mask_path, intersected_ids), total=min(len(image_path), limit) if limit else len(image_path), desc="Processing"):
         img = load_image(img_path)
         msk = load_seg(msk_path)
+        print(f"Image shape: {img.shape}, Mask shape: {msk.shape}")
 
-        # Get the largest slice
-        largest_img, largest_msk = get_largest_slice(img, msk)
+        # # Get the largest slice
+        # largest_img, largest_msk = get_largest_slice(img, msk)
+        try:
+            largest_img, largest_msk = get_largest_slice(img, msk)
+        except ValueError as e:
+            print(f"Error processing patient {patient_id}: {e}")
+            # 可选：在此处添加更多的调试代码，例如显示图像和掩模的某些切片
+            continue
+
 
         # Locate tumor in the slice
         sub_img, sub_msk = locate_tumor(largest_img, largest_msk)
+
+
+        # if sub_img.size == 0 or sub_msk.size == 0:
+        #     print(f"No tumor found in mask for patient {patient_id}, skipping.")
+        #     continue
 
         # Extract radiomic features
         features = extract_radiomic_features(sub_img, sub_msk)
@@ -356,22 +458,28 @@ def batch_process(image_path, mask_path, result_path, case_path, label_path, lim
         for id, score in ith_scores:
             writer.writerow([id, score])
 
-
-
-# Preprocessing steps
-case_path = 'D:/projects/ITHscore/01_TCGA_cases'
-label_path = 'D:/projects/ITHscore/01_TCGA_labels'
+case_path = 'D:/projects/ITHscore/02_FJMU_cases'
+label_path = 'D:/projects/ITHscore/02_FJMU_labels'
 intersected_ids = cat_intersection_ids(case_path, label_path)
 processing_interactions(intersected_ids, label_path, case_path)
-
-# Get image and mask path
-image_path, mask_path = achieve_img_and_mask_path(case_path)
-
-
-# Run batch processing
-result_path = 'D:/projects/ITHscore/01_TCGA_results'
+image_path, mask_path, missing_folders = achieve_img_and_mask_path(case_path)
+result_path = 'D:/projects/ITHscore/02_FJMU_results'
 batch_process(image_path, mask_path, result_path, case_path, label_path, limit=None)
-# batch_process(image_path, mask_path, result_path, limit=5)  # 只处理前5个图像
+
+# # Preprocessing steps
+# case_path = 'D:/projects/ITHscore/01_TCGA_cases'
+# label_path = 'D:/projects/ITHscore/01_TCGA_labels'
+# intersected_ids = cat_intersection_ids(case_path, label_path)
+# processing_interactions(intersected_ids, label_path, case_path)
+#
+# # Get image and mask path
+# image_path, mask_path = achieve_img_and_mask_path(case_path)
+#
+#
+# # Run batch processing
+# result_path = 'D:/projects/ITHscore/01_TCGA_results'
+# batch_process(image_path, mask_path, result_path, case_path, label_path, limit=None)
+# # batch_process(image_path, mask_path, result_path, limit=5)  # 只处理前5个图像
 
 
 

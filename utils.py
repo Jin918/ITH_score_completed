@@ -63,3 +63,5 @@ def extract_feature_unit(sub_img, p, q, padding=2):
         else:
             pass
     return features_temp
+
+

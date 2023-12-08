@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 def merge_csv_file(label_path, result_path, file_name):
-    labels_file_path = os.path.join(label_path, '01_TCGA_label_intersection.csv')
+    labels_file_path = os.path.join(label_path, '02_FJMU_label_intersection.csv')
     ith_score_file_path = os.path.join(result_path, 'ith_scores.csv')
 
     labels_df = pd.read_csv(labels_file_path, dtype={'ID': str})
@@ -13,7 +13,7 @@ def merge_csv_file(label_path, result_path, file_name):
 
     merged_df = labels_df.merge(ith_score_df, on='ID')
 
-    column_order = ['ID', 'ITH_Score', 'OS', 'OS.time']
+    column_order = ['ID', 'ITH_Score', 'OS', 'OS.time', 'Age', 'Gender', 'MGMT_promoter','TERT_promoter','EOR','P53','ki67']
     merged_df = merged_df[column_order]
 
     ith_score_path = os.path.join(result_path, file_name)
@@ -22,7 +22,7 @@ def merge_csv_file(label_path, result_path, file_name):
 
     return merge_csv_file
 
-label_path = 'D:/projects/ITHscore/01_TCGA_labels'
-result_path = 'D:/projects/ITHscore/01_TCGA_results'
+label_path = 'D:/projects/ITHscore/02_FJMU_labels'
+result_path = 'D:/projects/ITHscore/02_FJMU_results'
 file_name = 'ith_score_merge.csv'
 merge_csv_file(label_path, result_path, file_name)
